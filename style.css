@@ -1,0 +1,22 @@
+body , html, #app {
+    margin:  0;
+    height: 100%;
+    width: 100%;
+}
+
+#app {
+    overflow: hidden;
+    touch-action: pan-up;
+    color: #ffffff
+    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif; 
+    text-align: center;
+    text-shadow: 0 0 5px #ffffff, 0 0 20px #ffffff, 0 0 30px #ffffff;  
+}
+
+#app h1 {
+    --fontSize: 60px;
+    --lineHeight: 80px;
+    width: auto;
+    height: calc(2 * var(--lineHeight)); );
+    text-transform: uppercase;
+}
