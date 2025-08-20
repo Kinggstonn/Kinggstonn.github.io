@@ -302,25 +302,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // volume handled by slider
-
-  // loop handled by audio.loop = true
-
-  // Initialize
   loadTrack(currentIndex);
-<<<<<<< HEAD
-  // Do not autoplay; play only after overlay dismisses
 
   // ===== Click to Enter Overlay =====
   const entryOverlay = document.getElementById('entry-overlay');
   const enterBtn = document.getElementById('enter-btn');
   const dismissOverlay = () => {
     if (entryOverlay) {
-      entryOverlay.style.opacity = '0';
       entryOverlay.style.transition = 'opacity 300ms ease';
-      setTimeout(() => {
-        entryOverlay.style.display = 'none';
-      }, 320);
+      // ensure element is visible before fade
+      entryOverlay.style.display = 'flex';
+      requestAnimationFrame(() => {
+        entryOverlay.style.opacity = '0';
+        setTimeout(() => { entryOverlay.style.display = 'none'; }, 320);
+      });
     }
     // Start playback after entry
     audio.muted = false;
@@ -333,9 +328,16 @@ document.addEventListener('DOMContentLoaded', function() {
     enterBtn.addEventListener('click', () => { endSnowAndHide(); dismissOverlay(); });
   }
   if (entryOverlay) {
-    entryOverlay.addEventListener('click', () => {
+    const overlayClick = (e) => {
+      // Prevent multiple rapid triggers
+      if (entryOverlay._closing) return;
+      entryOverlay._closing = true;
       endSnowAndHide();
       dismissOverlay();
+    };
+    entryOverlay.addEventListener('click', overlayClick);
+    entryOverlay.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') overlayClick(e);
     });
   }
 
@@ -373,51 +375,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (entryOverlay && entryOverlay.style.display !== 'none') {
     startSnow();
   }
-  const endSnowAndHide = () => { if (snowStop) snowStop(); };
-=======
-  // Autoplay strategy: start muted (allowed), unmute on first user gesture
-  const tryAutoplay = async () => {
-    const attachUnmuteListeners = () => {
-      const unmute = () => {
-        audio.muted = false;
-        player.classList.remove('muted');
-        window.removeEventListener('click', unmute);
-        window.removeEventListener('keydown', unmute);
-        window.removeEventListener('touchstart', unmute);
-      };
-      window.addEventListener('click', unmute, { once: true });
-      window.addEventListener('keydown', unmute, { once: true });
-      window.addEventListener('touchstart', unmute, { once: true });
-    };
-
-    try {
-      // begin muted autoplay
-      audio.muted = true;
-      player.classList.add('muted');
-      await audio.play();
-      player.classList.add('playing');
-      // wait for first gesture to unmute
-      attachUnmuteListeners();
-    } catch (err) {
-      // If even muted autoplay is blocked, play on first gesture
-      const resume = () => {
-        audio.muted = true;
-        player.classList.add('muted');
-        audio.play().then(() => {
-          player.classList.add('playing');
-          attachUnmuteListeners();
-        }).catch(() => {});
-        window.removeEventListener('click', resume);
-        window.removeEventListener('keydown', resume);
-        window.removeEventListener('touchstart', resume);
-      };
-      window.addEventListener('click', resume, { once: true });
-      window.addEventListener('keydown', resume, { once: true });
-      window.addEventListener('touchstart', resume, { once: true });
-    }
-  };
-  tryAutoplay();
->>>>>>> 3106c0b3fcdf345c502e70c7ec21d7c3afd228b2
+  function endSnowAndHide() { if (snowStop) snowStop(); }
 });
 
 // Add CSS for new features
