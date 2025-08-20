@@ -25,9 +25,7 @@ body {
   position: relative;
 }
 
-/* Remove overlay to show background image clearly */
 
-/* Custom Properties */
 :root {
   --primary: #4a90e2;
   --primary-light: #64b5f6;
