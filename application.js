@@ -211,15 +211,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function playPause() {
     if (audio.paused) {
-      audio.play();
-      player.classList.add('playing');
-      userPaused = false;
-      
+      audio.play().then(() => {
+        userPaused = false;
+        syncPlayingClass(); // Sync UI after successful play
+      }).catch(() => {
+        syncPlayingClass(); // Sync UI even if play fails
+      });
     } else {
       audio.pause();
-      player.classList.remove('playing');
       userPaused = true;
-      
+      syncPlayingClass(); // Sync UI after pause
     }
   }
 
@@ -306,42 +307,25 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   loadTrack(currentIndex);
-<<<<<<< HEAD
   // Autoplay on load (muted for browser policy)
   audio.muted = true;
   audio.play().then(() => {
-    player.classList.add('playing');
-  }).catch(() => {});
+    syncPlayingClass(); // Use sync function instead of manual class manipulation
+  }).catch(() => {
+    syncPlayingClass(); // Sync even if autoplay fails
+  });
 
   // Robust autoplay attempts when media becomes ready/visible
   const tryPlayMuted = () => {
     if (document.visibilityState !== 'visible') return;
     if (!audio.paused || userPaused) return;
     audio.muted = true;
-=======
-
-  // ===== Click to Enter Overlay =====
-  const entryOverlay = document.getElementById('entry-overlay');
-  const enterBtn = document.getElementById('enter-btn');
-  const dismissOverlay = () => {
-    if (entryOverlay) {
-      entryOverlay.style.transition = 'opacity 300ms ease';
-      // ensure element is visible before fade
-      entryOverlay.style.display = 'flex';
-      requestAnimationFrame(() => {
-        entryOverlay.style.opacity = '0';
-        setTimeout(() => { entryOverlay.style.display = 'none'; }, 320);
-      });
-    }
-    // Start playback after entry
-    audio.muted = false;
-    player.classList.remove('muted');
->>>>>>> 40b70f2a315a84002b7b98344e01fc76fdc9b696
     audio.play().then(() => {
-      player.classList.add('playing');
-    }).catch(() => {});
+      syncPlayingClass(); // Use sync function instead of manual class manipulation
+    }).catch(() => {
+      syncPlayingClass(); // Sync even if autoplay fails
+    });
   };
-<<<<<<< HEAD
   document.addEventListener('visibilitychange', tryPlayMuted);
   audio.addEventListener('loadedmetadata', tryPlayMuted);
   audio.addEventListener('canplay', tryPlayMuted);
@@ -360,18 +344,37 @@ document.addEventListener('DOMContentLoaded', function() {
   window.addEventListener('pointerdown', unmuteOnFirstInteract, { once: true, passive: true });
   window.addEventListener('keydown', unmuteOnFirstInteract, { once: true });
   window.addEventListener('touchstart', unmuteOnFirstInteract, { once: true, passive: true });
-
+  
   // Keep UI icon in sync with real playback state
   const syncPlayingClass = () => {
-    player.classList.toggle('playing', !audio.paused && !audio.ended);
+    const isActuallyPlaying = !audio.paused && !audio.ended && !audio.muted;
+    player.classList.toggle('playing', isActuallyPlaying);
+    
+    // Update play button icon to match actual state
+    if (btnPlay) {
+      btnPlay.innerHTML = isActuallyPlaying ? 
+        '<i class="fas fa-pause"></i>' : 
+        '<i class="fas fa-play"></i>';
+    }
   };
+  
+  // Listen to all relevant audio events
   audio.addEventListener('play', syncPlayingClass);
   audio.addEventListener('pause', syncPlayingClass);
   audio.addEventListener('ended', syncPlayingClass);
   audio.addEventListener('seeking', syncPlayingClass);
   audio.addEventListener('ratechange', syncPlayingClass);
+  audio.addEventListener('volumechange', syncPlayingClass);
+  audio.addEventListener('loadedmetadata', syncPlayingClass);
+  
   // Initial sync in case autoplay was blocked or delayed
   syncPlayingClass();
+  
+  // Also sync when user manually controls
+  btnPlay.addEventListener('click', () => {
+    setTimeout(syncPlayingClass, 50); // Small delay to ensure audio state has updated
+  });
+  
   // ===== Click to Enter Overlay (disabled) =====
   // const entryOverlay = document.getElementById('entry-overlay');
   // const enterBtn = document.getElementById('enter-btn');
@@ -410,60 +413,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // const startSnow = () => { /* ... */ };
   // if (entryOverlay && entryOverlay.style.display !== 'none') { startSnow(); }
   // function endSnowAndHide() { if (snowStop) snowStop(); }
-=======
-  if (enterBtn) {
-    enterBtn.addEventListener('click', () => { endSnowAndHide(); dismissOverlay(); });
-  }
-  if (entryOverlay) {
-    const overlayClick = (e) => {
-      // Prevent multiple rapid triggers
-      if (entryOverlay._closing) return;
-      entryOverlay._closing = true;
-      endSnowAndHide();
-      dismissOverlay();
-    };
-    entryOverlay.addEventListener('click', overlayClick);
-    entryOverlay.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') overlayClick(e);
-    });
-  }
-
-  // ===== Snowfall Effect =====
-  // Snow only while overlay is visible
-  const snowCanvas = document.getElementById('snow-canvas');
-  let snowStop = null;
-  const startSnow = () => {
-    if (!snowCanvas) return;
-    const ctx = snowCanvas.getContext('2d');
-    const flakes = [];
-    let width = snowCanvas.width = window.innerWidth;
-    let height = snowCanvas.height = window.innerHeight;
-    const numFlakes = Math.min(160, Math.floor(width / 10));
-    const rand = (min, max) => Math.random() * (max - min) + min;
-    const createFlake = () => ({ x: rand(0, width), y: rand(-height, 0), r: rand(1, 3.5), d: rand(0.5, 1.5), a: rand(0, Math.PI * 2), sway: rand(0.5, 2.0) });
-    for (let i = 0; i < numFlakes; i++) flakes.push(createFlake());
-
-    let rafId;
-    const draw = () => {
-      ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = 'rgba(255,255,255,0.9)';
-      ctx.beginPath();
-      for (const f of flakes) { ctx.moveTo(f.x, f.y); ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2); }
-      ctx.fill();
-      for (const f of flakes) { f.y += f.d; f.a += 0.01 * f.sway; f.x += Math.sin(f.a) * 0.6; if (f.y > height + 5) { f.x = rand(0, width); f.y = -5; } if (f.x > width + 5) f.x = -5; if (f.x < -5) f.x = width + 5; }
-      rafId = requestAnimationFrame(draw);
-    };
-    const onResize = () => { width = snowCanvas.width = window.innerWidth; height = snowCanvas.height = window.innerHeight; };
-    window.addEventListener('resize', onResize);
-    draw();
-    snowStop = () => { cancelAnimationFrame(rafId); window.removeEventListener('resize', onResize); ctx.clearRect(0, 0, width, height); };
-  };
-
-  if (entryOverlay && entryOverlay.style.display !== 'none') {
-    startSnow();
-  }
-  function endSnowAndHide() { if (snowStop) snowStop(); }
->>>>>>> 40b70f2a315a84002b7b98344e01fc76fdc9b696
 });
 
 // Add CSS for new features
