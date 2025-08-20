@@ -306,6 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   loadTrack(currentIndex);
+<<<<<<< HEAD
   // Autoplay on load (muted for browser policy)
   audio.muted = true;
   audio.play().then(() => {
@@ -317,10 +318,30 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.visibilityState !== 'visible') return;
     if (!audio.paused || userPaused) return;
     audio.muted = true;
+=======
+
+  // ===== Click to Enter Overlay =====
+  const entryOverlay = document.getElementById('entry-overlay');
+  const enterBtn = document.getElementById('enter-btn');
+  const dismissOverlay = () => {
+    if (entryOverlay) {
+      entryOverlay.style.transition = 'opacity 300ms ease';
+      // ensure element is visible before fade
+      entryOverlay.style.display = 'flex';
+      requestAnimationFrame(() => {
+        entryOverlay.style.opacity = '0';
+        setTimeout(() => { entryOverlay.style.display = 'none'; }, 320);
+      });
+    }
+    // Start playback after entry
+    audio.muted = false;
+    player.classList.remove('muted');
+>>>>>>> 40b70f2a315a84002b7b98344e01fc76fdc9b696
     audio.play().then(() => {
       player.classList.add('playing');
     }).catch(() => {});
   };
+<<<<<<< HEAD
   document.addEventListener('visibilitychange', tryPlayMuted);
   audio.addEventListener('loadedmetadata', tryPlayMuted);
   audio.addEventListener('canplay', tryPlayMuted);
@@ -389,6 +410,60 @@ document.addEventListener('DOMContentLoaded', function() {
   // const startSnow = () => { /* ... */ };
   // if (entryOverlay && entryOverlay.style.display !== 'none') { startSnow(); }
   // function endSnowAndHide() { if (snowStop) snowStop(); }
+=======
+  if (enterBtn) {
+    enterBtn.addEventListener('click', () => { endSnowAndHide(); dismissOverlay(); });
+  }
+  if (entryOverlay) {
+    const overlayClick = (e) => {
+      // Prevent multiple rapid triggers
+      if (entryOverlay._closing) return;
+      entryOverlay._closing = true;
+      endSnowAndHide();
+      dismissOverlay();
+    };
+    entryOverlay.addEventListener('click', overlayClick);
+    entryOverlay.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') overlayClick(e);
+    });
+  }
+
+  // ===== Snowfall Effect =====
+  // Snow only while overlay is visible
+  const snowCanvas = document.getElementById('snow-canvas');
+  let snowStop = null;
+  const startSnow = () => {
+    if (!snowCanvas) return;
+    const ctx = snowCanvas.getContext('2d');
+    const flakes = [];
+    let width = snowCanvas.width = window.innerWidth;
+    let height = snowCanvas.height = window.innerHeight;
+    const numFlakes = Math.min(160, Math.floor(width / 10));
+    const rand = (min, max) => Math.random() * (max - min) + min;
+    const createFlake = () => ({ x: rand(0, width), y: rand(-height, 0), r: rand(1, 3.5), d: rand(0.5, 1.5), a: rand(0, Math.PI * 2), sway: rand(0.5, 2.0) });
+    for (let i = 0; i < numFlakes; i++) flakes.push(createFlake());
+
+    let rafId;
+    const draw = () => {
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.beginPath();
+      for (const f of flakes) { ctx.moveTo(f.x, f.y); ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2); }
+      ctx.fill();
+      for (const f of flakes) { f.y += f.d; f.a += 0.01 * f.sway; f.x += Math.sin(f.a) * 0.6; if (f.y > height + 5) { f.x = rand(0, width); f.y = -5; } if (f.x > width + 5) f.x = -5; if (f.x < -5) f.x = width + 5; }
+      rafId = requestAnimationFrame(draw);
+    };
+    const onResize = () => { width = snowCanvas.width = window.innerWidth; height = snowCanvas.height = window.innerHeight; };
+    window.addEventListener('resize', onResize);
+    draw();
+    snowStop = () => { cancelAnimationFrame(rafId); window.removeEventListener('resize', onResize); ctx.clearRect(0, 0, width, height); };
+  };
+
+  if (entryOverlay && entryOverlay.style.display !== 'none') {
+    startSnow();
+  }
+  function endSnowAndHide() { if (snowStop) snowStop(); }
+>>>>>>> 40b70f2a315a84002b7b98344e01fc76fdc9b696
 });
 
 // Add CSS for new features
