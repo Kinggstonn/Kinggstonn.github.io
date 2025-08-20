@@ -3,30 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Kingston - Developer Portfolio | An anonymous developer loving anime and manga">
+  <meta name="keywords" content="developer, portfolio, web development, anime, manga">
+  <meta name="author" content="Kingston">
   <title>Kingston - Portfolio</title>
-  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="modern-style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <!-- Header & Navbar -->
   <header class="main-header">
     <nav class="navbar">
-      <a href="#home" class="site-title">Kingston/Jirou</a>
+      <a href="#home" class="site-title">
+        <span class="title-highlight">Kingston</span>/Jirou
+      </a>
       <ul class="nav-links">
+        <li><a href="#home" class="nav-link">Home</a></li>
         <li><a href="#about" class="nav-link">About</a></li>
         <li><a href="#projects" class="nav-link">Projects</a></li>
         <li><a href="#contact" class="nav-link">Contact</a></li>
       </ul>
-
-      <!-- <a href="#contact" class="nav-button">Contact Me</a> -->
+      <div class="mobile-menu-toggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
     </nav>
   </header>
 
   <main>
     <!-- Hero Section -->
     <section id="home" class="hero-section container">
-      <div class="hero-text">
-        <h1>Hi, I'm <span>Bao Khanh</span></h1>
-        <p>An anonymous developer.</p>
+      <div class="hero-content">
+        <div class="hero-text">
+          <div class="greeting">Hello, I'm</div>
+          <h1 class="hero-title">
+            <span class="name-highlight">Bao Khanh</span>
+          </h1>
+          <p class="hero-subtitle">An anonymous developer with a passion for anime & manga</p>
+          <div class="hero-description">
+            I create digital experiences while enjoying the world of Japanese animation and comics
+          </div>
+          <div class="hero-actions">
+            <a href="#projects" class="btn btn-primary">View My Work</a>
+            <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -36,7 +60,27 @@
         <h2 class="section-title">About Me</h2>
         <div class="about-container">
           <div class="about-content">
-            <p>I'm just a developer loving anime and manga. In freetime you can find me gaming, watching anime, Youtube, listening to chill music or chatting in somewhere </p>
+            <div class="about-text">
+              <p class="about-intro">I'm just a developer loving anime and manga. In freetime you can find me gaming, watching anime, YouTube, listening to chill music or chatting somewhere.</p>
+              <div class="skills-section">
+                <h3>What I Do</h3>
+                <div class="skills-grid">
+                  <div class="skill-item">
+                    <span class="skill-name">Web Development</span>
+                  </div>
+                  <div class="skill-item">
+                    <span class="skill-name">Gamer</span>
+                  </div>
+                  <div class="skill-item">
+                    <span class="skill-name">Problem Solving</span>
+                  </div>
+                  <div class="skill-item">
+                    <span class="skill-name">AI Training</span>
+                  </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -48,13 +92,16 @@
         <h2 class="section-title">My Projects</h2>
         <div class="projects-grid">
           <div class="project-card">
-            <!-- <img src="../icon/project1.jpg" alt="Project One"> -->
+            <div class="project-header">       
+          <div class="project-card coming-soon">
+            <div class="project-header">
+              <h3>More Coming Soon</h3>
+            </div>
             <div class="project-info">
-              <h3>Project One</h3>
-              <p>I don't have any outstanding projects yet :P</p>
+              <p>I'm working on some exciting projects</p>
+              </div>
             </div>
           </div>
-          <!-- Add project -->
         </div>
       </div>
     </section>
@@ -64,13 +111,18 @@
       <div class="container">
         <h2 class="section-title">Get In Touch</h2>
         <div class="contact-content">
+          <p class="contact-intro">I'm always open to discussing new opportunities, creative ideas, or just having a chat about anime and games.</p>
           <div class="social-links">
             <a href="https://t.me/Kinggstonn" target="_blank" rel="noopener noreferrer" class="social-link">
-              <img src="../icon/telegram.webp" alt="Telegram" class="social-icon">
+              <div class="social-icon-wrapper">
+                <img src="icon/telegram.webp" alt="Telegram" class="social-icon">
+              </div>
               <span>Telegram</span>
             </a>
             <a href="https://discord.com/users/563662442446585857" target="_blank" rel="noopener noreferrer" class="social-link">
-              <img src="../icon/discord.webp" alt="Discord" class="social-icon">
+              <div class="social-icon-wrapper">
+                <img src="icon/discord.webp" alt="Discord" class="social-icon">
+              </div>
               <span>Discord</span>
             </a>
           </div>
@@ -79,11 +131,39 @@
     </section>
   </main>
 
-  <footer>
+  <footer class="main-footer">
     <div class="container">
-      <p>&copy; Kingston. All Rights Reserved.</p>
+      <div class="footer-content">
+        <p>&copy; 2025 Kingston. All Rights Reserved.</p>
+        <p class="footer-quote">"Code with passion, live with anime"</p>
+      </div>
     </div>
   </footer>
+  <!-- Mini Music Player -->
+  <div class="music-player" id="music-player" role="region" aria-label="Music player">
+    <button class="mp-btn mp-toggle" aria-label="Minimize/Expand" title="Minimize/Expand">
+      <svg class="icon-collapse" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M7 10l5 5 5-5H7z"/></svg>
+      <svg class="icon-expand" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M7 14l5-5 5 5H7z"/></svg>
+    </button>
+    <button class="mp-btn mp-play" aria-label="Play/Pause" title="Play/Pause">
+      <svg class="icon-play" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+      <svg class="icon-pause" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M6 5h4v14H6V5zm8 0h4v14h-4V5z"/></svg>
+    </button>
+    <div class="mp-meta">
+      <div class="mp-title" id="mp-title">Ready</div>
+      <input type="range" class="mp-progress" id="mp-progress" min="0" max="100" value="0" aria-label="Progress">
+    </div>
+    <div class="mp-volume-pop" aria-hidden="true">
+      <input type="range" class="mp-volume" id="mp-volume" min="0" max="100" value="75" aria-label="Volume" orient="vertical">
+    </div>
+    <button class="mp-btn mp-mute" aria-label="Mute/Unmute" title="Mute/Unmute">
+      <svg class="icon-volume" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M3 10v4h4l5 5V5L7 10H3zm13.5 2a4.5 4.5 0 00-2.25-3.91v7.82A4.5 4.5 0 0016.5 12zm0-9v2a9 9 0 010 14v2c6-2.25 8-9 0-18z"/></svg>
+      <svg class="icon-muted" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M16.5 12c0-1.74-.99-3.24-2.25-3.96v1.79l2.21 2.21c.03-.01.04-.02.04-.04zm2.5 0c0 2.97-1.63 5.54-4 6.92v2.01c3.99-1.48 7-5.31 7-8.93s-3.01-7.45-7-8.93v2.01c1.51.87 2.69 2.23 3.35 3.86l-1.45 1.45c-.45-1.48-1.42-2.74-2.72-3.53V5l-5-5v7L7 10H3v4h4l3.29 3.29L2.81 24l1.41 1.41 18-18L20.81 6l-1.81 1.81c.81 1.28 1.25 2.79 1.25 4.19z"/></svg>
+    </button>
+  </div>
+  <audio id="mp-audio" preload="metadata"></audio>
+
+  
 
   <script src="application.js"></script>
 </body>
