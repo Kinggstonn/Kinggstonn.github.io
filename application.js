@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
           }
           
           window.scrollTo({
-            top: target.offsetTop - 80, // Adjust for sticky header height
+            top: target.offsetTop - 80, 
             behavior: 'smooth'
           });
         }
@@ -272,7 +272,48 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initialize
   loadTrack(currentIndex);
-  
+  // Autoplay strategy: start muted (allowed), unmute on first user gesture
+  const tryAutoplay = async () => {
+    const attachUnmuteListeners = () => {
+      const unmute = () => {
+        audio.muted = false;
+        player.classList.remove('muted');
+        window.removeEventListener('click', unmute);
+        window.removeEventListener('keydown', unmute);
+        window.removeEventListener('touchstart', unmute);
+      };
+      window.addEventListener('click', unmute, { once: true });
+      window.addEventListener('keydown', unmute, { once: true });
+      window.addEventListener('touchstart', unmute, { once: true });
+    };
+
+    try {
+      // begin muted autoplay
+      audio.muted = true;
+      player.classList.add('muted');
+      await audio.play();
+      player.classList.add('playing');
+      // wait for first gesture to unmute
+      attachUnmuteListeners();
+    } catch (err) {
+      // If even muted autoplay is blocked, play on first gesture
+      const resume = () => {
+        audio.muted = true;
+        player.classList.add('muted');
+        audio.play().then(() => {
+          player.classList.add('playing');
+          attachUnmuteListeners();
+        }).catch(() => {});
+        window.removeEventListener('click', resume);
+        window.removeEventListener('keydown', resume);
+        window.removeEventListener('touchstart', resume);
+      };
+      window.addEventListener('click', resume, { once: true });
+      window.addEventListener('keydown', resume, { once: true });
+      window.addEventListener('touchstart', resume, { once: true });
+    }
+  };
+  tryAutoplay();
 });
 
 // Add CSS for new features
