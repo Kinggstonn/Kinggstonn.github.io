@@ -350,12 +350,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const isActuallyPlaying = !audio.paused && !audio.ended && !audio.muted;
     player.classList.toggle('playing', isActuallyPlaying);
     
-    // Update play button icon to match actual state
-    if (btnPlay) {
-      btnPlay.innerHTML = isActuallyPlaying ? 
-        '<i class="fas fa-pause"></i>' : 
-        '<i class="fas fa-play"></i>';
-    }
+    // CSS will automatically handle icon visibility based on .playing class
+    // No need to manually manipulate icon display
   };
   
   // Listen to all relevant audio events
