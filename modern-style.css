@@ -1,7 +1,5 @@
-/* Modern Portfolio CSS - Kingston */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-/* Reset and Base Styles */
 * {
   margin: 0;
   padding: 0;
@@ -693,6 +691,10 @@ section {
   z-index: 1200;
   transition: var(--transition);
   will-change: transform, box-shadow;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .music-player:hover {
@@ -768,6 +770,9 @@ section {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .music-player .mp-progress {
@@ -778,6 +783,9 @@ section {
   background: rgba(255,255,255,0.18);
   border-radius: 999px;
   overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: none;
 }
 
 .music-player .mp-progress::-webkit-slider-thumb {
