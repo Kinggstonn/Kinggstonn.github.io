@@ -183,7 +183,6 @@ document.addEventListener('DOMContentLoaded', function() {
     progressBar.style.width = scrolled + '%';
   });
 
-  // ===== Mini Music Player =====
   const audio = document.getElementById('mp-audio');
   const player = document.getElementById('music-player');
   const btnPlay = player.querySelector('.mp-play');
@@ -191,6 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const btnToggle = player.querySelector('.mp-toggle');
   const titleEl = document.getElementById('mp-title');
   const progress = document.getElementById('mp-progress');
+  const timeEl = document.getElementById('mp-time');
   const volume = document.getElementById('mp-volume');
 
   // Local track list
@@ -240,17 +240,60 @@ document.addEventListener('DOMContentLoaded', function() {
     player.classList.toggle('collapsed');
   });
 
+  // Clicking the volume button only toggles the popup; no mute
   btnMute.addEventListener('click', () => {
-    audio.muted = !audio.muted;
-    player.classList.toggle('muted', audio.muted);
-  });
-
-  // Update progress bar
-  audio.addEventListener('timeupdate', () => {
-    if (!isNaN(audio.duration)) {
-      progress.value = (audio.currentTime / audio.duration) * 100;
+    const open = player.classList.toggle('volume-open');
+    if (player._volTimer) clearTimeout(player._volTimer);
+    if (open) {
+      player._volTimer = setTimeout(() => player.classList.remove('volume-open'), 1500);
     }
   });
+
+  // Keep popup open while hovering over it; hide 1.5s after leave
+  const volumePop = document.querySelector('.mp-volume-pop');
+  if (volumePop) {
+    volumePop.addEventListener('mouseenter', () => {
+      if (player._volTimer) clearTimeout(player._volTimer);
+      player.classList.add('volume-open');
+    });
+    volumePop.addEventListener('mouseleave', () => {
+      if (player._volTimer) clearTimeout(player._volTimer);
+      player._volTimer = setTimeout(() => player.classList.remove('volume-open'), 1500);
+    });
+  }
+
+  // Volume control: 0..100 mapped to 0..1
+  if (volume) {
+    const applyVolume = () => {
+      const raw = Number(volume.value);
+      const clamped = Math.min(100, Math.max(0, isNaN(raw) ? 75 : raw));
+      audio.volume = clamped / 100;
+    };
+    volume.addEventListener('input', applyVolume);
+    volume.addEventListener('change', applyVolume);
+    // set initial volume from slider value
+    applyVolume();
+  }
+
+  // Format time helper
+  const fmt = (sec) => {
+    if (!isFinite(sec)) return '--:--';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
+
+  // Update progress bar and time
+  const updateProgress = () => {
+    if (!isNaN(audio.duration) && isFinite(audio.duration)) {
+      progress.value = (audio.currentTime / audio.duration) * 100;
+      if (timeEl) timeEl.textContent = `${fmt(audio.currentTime)} / ${fmt(audio.duration)}`;
+    } else {
+      if (timeEl) timeEl.textContent = `${fmt(audio.currentTime)} / --:--`;
+    }
+  };
+  audio.addEventListener('timeupdate', updateProgress);
+  audio.addEventListener('loadedmetadata', updateProgress);
 
   // Seek when user drags
   progress.addEventListener('input', () => {
@@ -259,20 +302,77 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Volume control
-  if (volume) {
-    volume.addEventListener('input', () => {
-      const val = Math.min(100, Math.max(0, Number(volume.value)));
-      audio.volume = val / 100;
-    });
-    audio.volume = Number(volume.value) / 100;
-  }
+  // volume handled by slider
 
   // loop handled by audio.loop = true
 
   // Initialize
   loadTrack(currentIndex);
-  
+  // Do not autoplay; play only after overlay dismisses
+
+  // ===== Click to Enter Overlay =====
+  const entryOverlay = document.getElementById('entry-overlay');
+  const enterBtn = document.getElementById('enter-btn');
+  const dismissOverlay = () => {
+    if (entryOverlay) {
+      entryOverlay.style.opacity = '0';
+      entryOverlay.style.transition = 'opacity 300ms ease';
+      setTimeout(() => {
+        entryOverlay.style.display = 'none';
+      }, 320);
+    }
+    // Start playback after entry
+    audio.muted = false;
+    player.classList.remove('muted');
+    audio.play().then(() => {
+      player.classList.add('playing');
+    }).catch(() => {});
+  };
+  if (enterBtn) {
+    enterBtn.addEventListener('click', () => { endSnowAndHide(); dismissOverlay(); });
+  }
+  if (entryOverlay) {
+    entryOverlay.addEventListener('click', () => {
+      endSnowAndHide();
+      dismissOverlay();
+    });
+  }
+
+  // ===== Snowfall Effect =====
+  // Snow only while overlay is visible
+  const snowCanvas = document.getElementById('snow-canvas');
+  let snowStop = null;
+  const startSnow = () => {
+    if (!snowCanvas) return;
+    const ctx = snowCanvas.getContext('2d');
+    const flakes = [];
+    let width = snowCanvas.width = window.innerWidth;
+    let height = snowCanvas.height = window.innerHeight;
+    const numFlakes = Math.min(160, Math.floor(width / 10));
+    const rand = (min, max) => Math.random() * (max - min) + min;
+    const createFlake = () => ({ x: rand(0, width), y: rand(-height, 0), r: rand(1, 3.5), d: rand(0.5, 1.5), a: rand(0, Math.PI * 2), sway: rand(0.5, 2.0) });
+    for (let i = 0; i < numFlakes; i++) flakes.push(createFlake());
+
+    let rafId;
+    const draw = () => {
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.beginPath();
+      for (const f of flakes) { ctx.moveTo(f.x, f.y); ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2); }
+      ctx.fill();
+      for (const f of flakes) { f.y += f.d; f.a += 0.01 * f.sway; f.x += Math.sin(f.a) * 0.6; if (f.y > height + 5) { f.x = rand(0, width); f.y = -5; } if (f.x > width + 5) f.x = -5; if (f.x < -5) f.x = width + 5; }
+      rafId = requestAnimationFrame(draw);
+    };
+    const onResize = () => { width = snowCanvas.width = window.innerWidth; height = snowCanvas.height = window.innerHeight; };
+    window.addEventListener('resize', onResize);
+    draw();
+    snowStop = () => { cancelAnimationFrame(rafId); window.removeEventListener('resize', onResize); ctx.clearRect(0, 0, width, height); };
+  };
+
+  if (entryOverlay && entryOverlay.style.display !== 'none') {
+    startSnow();
+  }
+  const endSnowAndHide = () => { if (snowStop) snowStop(); };
 });
 
 // Add CSS for new features
